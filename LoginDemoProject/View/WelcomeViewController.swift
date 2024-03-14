@@ -14,7 +14,8 @@ class WelcomeViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationController?.navigationBar.backgroundColor = .systemIndigo
+        navigationController?.navigationBar.backgroundColor = #colorLiteral(red: 0.02441048995, green: 0.01944379136, blue: 0.06603208929, alpha: 1)
+           // .systemIndigo
         navigationController?.navigationBar.standardAppearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor: #colorLiteral(red: 0.5464712977, green: 0.8229803443, blue: 0.9043354988, alpha: 1)]
         navigationItem.title = "Welcome"
         navigationItem.backButtonTitle = ""
