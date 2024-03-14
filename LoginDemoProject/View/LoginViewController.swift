@@ -7,6 +7,7 @@ class LoginViewController: UIViewController, MFMailComposeViewControllerDelegate
     @IBOutlet weak var emailTextField: UITextField!
     @IBOutlet weak var passwordTextField: UITextField!
     @IBOutlet weak var loginButton: UIButton!
+    let validator = Validation()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -14,78 +15,62 @@ class LoginViewController: UIViewController, MFMailComposeViewControllerDelegate
         passwordTextField.delegate = self
         // Do any additional setup after loading the view.
     }
+    override func viewWillAppear(_ animated: Bool) {
+        
+    }
+    
+    
     @IBAction func loginButtonTapped(_ sender: UIButton) {
         guard let email = emailTextField.text, !email.isEmpty,
               let password = passwordTextField.text, !password.isEmpty else {
-            let alertController = UIAlertController(title: "Login failed", message: Constants.loginDetailsNotFilledWarning, preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            present(alertController, animated: true, completion: nil)
+            showAlert(title: "Login failed", message: Constants.loginDetailsNotFilledWarning)
             return
         }
         
-        if isValidEmail(email) {
-            let realm = try! Realm()
-            // Query the Realm database to check if a user with the entered email exists
-            let registeredUser = realm.objects(Registration.self)
-                .filter("email = %@", email)
-                .first
-            
-            if let user = registeredUser {
-                // User with the entered email exists, check if the password matches
-                if user.password == password {
-                    // Password is correct, proceed to login
-                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                    if let descriptionViewController = storyboard.instantiateViewController(withIdentifier: Constants.descriptionViewIdentifier) as? DescriptionViewController {
-                        descriptionViewController.enteredEmail = email
-                        descriptionViewController.entryInformation = Constants.loginStatus
-                        navigationController?.pushViewController(descriptionViewController, animated: true)
-                    }
-                } else {
-                    // Password is incorrect, show notification "Incorrect Password"
-                    let alertController = UIAlertController(title: "Incorrect Password", message: Constants.incorrectpassword, preferredStyle: .alert)
-                    alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-                    present(alertController, animated: true, completion: nil)
-                }
+        guard validator.isValidEmail(email) else {
+            showAlert(title: "Login failed", message: Constants.emailFormatWarning)
+            return
+        }
+        
+        let realm = try! Realm()
+        if let registeredUser = realm.objects(Registration.self).filter("email = %@", email).first {
+            if registeredUser.password == password {
+                // Password is correct, proceed to login
+                self.navigateToDescriptionViewController(email: email, entryInformation: Constants.loginStatus)
             } else {
-                // User is not registered, show notification "Register first" and navigate to RegistrationViewController
-                let alertController = UIAlertController(title: "Register please", message: Constants.userNotFoundWarning, preferredStyle: .alert)
-                alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: { _ in
-                    // Navigate to RegistrationViewController
-                    let storyboard = UIStoryboard(name: "Main", bundle: nil)
-                    if let registrationViewController = storyboard.instantiateViewController(withIdentifier: Constants.registrationViewIdentifier) as? RegistrationViewController {
-                        self.navigationController?.pushViewController(registrationViewController, animated: true)
-                    }
-                }))
-                present(alertController, animated: true, completion: nil)
+                showAlert(title: "Incorrect Password", message: Constants.incorrectpassword)
             }
         } else {
-            // Invalid email format, show an error message
-            let alertController = UIAlertController(title: "Login failed", message: Constants.emailFormatWarning, preferredStyle: .alert)
-            alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
-            present(alertController, animated: true, completion: nil)
+            showAlert(title: "Register please", message: Constants.userNotFoundWarning) {
+                // Navigate to RegistrationViewController
+                self.navigateToRegistrationViewController()
+            }
         }
     }
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        if textField == passwordTextField {
-            loginButtonTapped(loginButton)
-        } else {
-            textField.resignFirstResponder()
+
+    func showAlert(title: String, message: String?, completion: (() -> Void)? = nil) {
+        let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default) { _ in
+            completion?()
+        })
+        present(alertController, animated: true, completion: nil)
+    }
+
+    func navigateToDescriptionViewController(email: String, entryInformation: String) {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let descriptionViewController = storyboard.instantiateViewController(withIdentifier: Constants.descriptionViewIdentifier) as? DescriptionViewController {
+            descriptionViewController.enteredEmail = email
+            descriptionViewController.entryInformation = entryInformation
+            navigationController?.pushViewController(descriptionViewController, animated: true)
         }
-        return true
     }
-    
-    
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.view.endEditing(true)
-    }
-    
-    // Method to verify email format
-    func isValidEmail(_ email: String) -> Bool {
-        let emailRegex = Constants.emailFormatConditions
-        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
-        return emailPredicate.evaluate(with: email)
+
+    func navigateToRegistrationViewController() {
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let registrationViewController = storyboard.instantiateViewController(withIdentifier: Constants.registrationViewIdentifier) as? RegistrationViewController {
+            navigationController?.pushViewController(registrationViewController, animated: true)
+        }
     }
 }
-
 
 

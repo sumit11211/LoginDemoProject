@@ -15,8 +15,8 @@ class DescriptionViewController: UIViewController {
     @IBOutlet weak var emailLabel: UILabel!
     @IBOutlet weak var informationLabel: UILabel!
     
-    var enteredEmail : String = ""
-    var entryInformation : String = ""
+    var enteredEmail : String?
+    var entryInformation : String?
     var user: Registration?
     
     @IBAction func logOutButton(_ sender: Any) {
@@ -27,7 +27,7 @@ class DescriptionViewController: UIViewController {
         navigationItem.hidesBackButton = true
         informationLabel.text = entryInformation
         let realm = try! Realm()
-        let loggedUser = realm.objects(Registration.self).filter("email = %@", enteredEmail).first
+        let loggedUser = realm.objects(Registration.self).filter("email = %@", enteredEmail!).first
         if loggedUser != nil {
             self.firstNameLabel.text = "\(loggedUser!.firstName)"
             self.lastNameLabel.text = "\(loggedUser!.lastName)"

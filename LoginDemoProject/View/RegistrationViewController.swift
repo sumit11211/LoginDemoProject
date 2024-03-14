@@ -18,7 +18,7 @@ class RegistrationViewController: UIViewController {
     @IBOutlet weak var registerButton: UIButton!
     @IBOutlet weak var passwordWarningLabel: UILabel!
     
-    
+    let validator = Validation()
     
     
     override func viewDidLoad() {
@@ -40,12 +40,12 @@ class RegistrationViewController: UIViewController {
             return
         }
         
-        guard isValidEmail(email) else {
+        guard validator.isValidEmail(email) else {
             showAlert(title: "Error", message: Constants.emailFormatWarning)
             return
         }
         
-        guard isValidPassword(password) else {
+        guard validator.isValidPassword(password) else {
             showAlert(title: "Password Format Error", message: Constants.passwordFormatWarning)
             return
         }
@@ -67,7 +67,6 @@ class RegistrationViewController: UIViewController {
         try! realm.write {
             realm.add(registration)
         }
-        
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         if let descriptionViewController = storyboard.instantiateViewController(withIdentifier: "DescriptionViewController") as? DescriptionViewController {
             descriptionViewController.enteredEmail = email
@@ -75,24 +74,10 @@ class RegistrationViewController: UIViewController {
             navigationController?.pushViewController(descriptionViewController, animated: true)
         }
     }
-
     func showAlert(title: String, message: String?) {
         let alertController = UIAlertController(title: title, message: message, preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         present(alertController, animated: true, completion: nil)
-    }
-
-    // Method to verify Email format
-    func isValidEmail(_ email: String) -> Bool {
-        let emailRegex = Constants.emailFormatConditions
-        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
-        return emailPredicate.evaluate(with: email)
-    }
-    // Method to verify password format
-    func isValidPassword(_ password: String) -> Bool {
-        let passwordRegex = Constants.passwordFormatConditions
-        let passwordPredicate = NSPredicate(format: "SELF MATCHES %@", passwordRegex)
-        return passwordPredicate.evaluate(with: password)
     }
 }
 
