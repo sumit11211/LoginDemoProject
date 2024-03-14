@@ -23,6 +23,7 @@ class RegistrationViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.title = "Registration"
         passwordWarningLabel.text = Constants.passwordFormatWarning
         firstNameTextField.delegate = self
         lastNameTextField.delegate = self

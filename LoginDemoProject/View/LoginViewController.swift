@@ -11,6 +11,8 @@ class LoginViewController: UIViewController, MFMailComposeViewControllerDelegate
     
     override func viewDidLoad() {
         super.viewDidLoad()
+       
+        navigationItem.title = "Login"
         emailTextField.delegate = self
         passwordTextField.delegate = self
         // Do any additional setup after loading the view.

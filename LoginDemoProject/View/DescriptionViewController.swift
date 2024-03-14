@@ -22,8 +22,10 @@ class DescriptionViewController: UIViewController {
     @IBAction func logOutButton(_ sender: Any) {
         navigationController?.popToRootViewController(animated: true)
     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        navigationItem.title = "Profile"
         navigationItem.hidesBackButton = true
         informationLabel.text = entryInformation
         let realm = try! Realm()
